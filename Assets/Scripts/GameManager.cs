@@ -41,6 +41,11 @@ public class GameManager : MonoBehaviour
         // Initilisation
         playerScores = new int[2];
 
+        manager = World.DefaultGameObjectInjectionWorld.EntityManager;  // Get the the current world manager where the entitites have spwan
+
+        GameObjectConversionSettings settings = GameObjectConversionSettings.FromWorld(World.DefaultGameObjectInjectionWorld, null); // get the setting of the world
+        ballEntityPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(ballPrefab, settings);
+
         oneSecond = new WaitForSeconds(1f);
         delay = new WaitForSeconds(respawnDelay);
 
@@ -77,7 +82,18 @@ public class GameManager : MonoBehaviour
 
     void SpawnBall()
     {
+        Entity ball = manager.Instantiate(ballEntityPrefab);
 
+        Vector3 dir = new Vector3(UnityEngine.Random.Range(0, 2) == 0 ? -1 : 1, UnityEngine.Random.Range(-.5f, .5f), 0f).normalized;
+        Vector3 speed = dir * ballSpeed;
+
+        PhysicsVelocity velocity = new PhysicsVelocity()
+        {
+            Linear = speed,
+            Angular = float3.zero
+        };
+
+        manager.AddComponentData(ball, velocity);
     }
 }
 
